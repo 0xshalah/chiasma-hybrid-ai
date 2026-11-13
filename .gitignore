@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Chrome Extension
+chrome-extension/dist/
+chrome-extension/*.zip
+
+# Android
+android-app/.gradle/
+android-app/build/
+android-app/local.properties
+android-app/app/build/
+*.apk
+
+# Logs
+*.log
+npm-debug.log*

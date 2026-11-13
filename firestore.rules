@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// CHIASMA Firestore Security Rules
+// Access requires Firebase Auth + App Check enforcement.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Context Nodes — user-scoped, synced across Chrome + Android
+    match /users/{userId}/contextNodes/{nodeId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId
+        && request.resource.data.userId == userId;
+
+      // Only the owner can read/write their context nodes
+      allow delete: if request.auth.uid == userId;
+    }
+
+    // Shared context (cross-device handoff) — user-scoped
+    match /users/{userId}/sharedContext/{contextId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Remote Config fallback store (read-only, admin-managed)
+    match /config/{configId} {
+      allow read: if request.auth != null;
+      allow write: if false; // admin-only via console
+    }
+  }
+}
