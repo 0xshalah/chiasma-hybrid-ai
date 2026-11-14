@@ -8,7 +8,7 @@ const sharedCorePath = fileURLToPath(
 
 export default defineConfig({
   plugins: [react()],
-  base: process.env.VITE_BASE || "/",
+  base: process.env.VITE_BASE || "/chiasma-hybrid-ai/",
   resolve: {
     alias: {
       "@chiasma/shared-core": sharedCorePath,
@@ -21,5 +21,16 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-three": ["three"],
+          "vendor-gsap": ["gsap"],
+          "vendor-lenis": ["@studio-freight/lenis"],
+          "vendor-react": ["react", "react-dom"],
+        },
+      },
+    },
   },
 });
