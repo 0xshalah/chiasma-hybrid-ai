@@ -6,7 +6,11 @@
 
 import { useSandbox } from "./sandbox-context.tsx";
 
-export function AndroidCompanion() {
+export function AndroidCompanion({
+  captureVoiceRef,
+}: {
+  captureVoiceRef?: React.RefObject<HTMLButtonElement | null>;
+}) {
   const { state, dispatch } = useSandbox();
   const pendingCount = state.pendingQueue.length;
   const syncedCount = state.syncedNodes.length;
@@ -43,9 +47,12 @@ export function AndroidCompanion() {
               padding: "2px 8px",
               border: "1px solid var(--c-system2)",
               fontVariantNumeric: "tabular-nums",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
             }}
           >
-            ● OFFLINE
+            <DotIcon color="var(--c-system2)" /> OFFLINE
           </span>
         ) : (
           <span
@@ -58,9 +65,12 @@ export function AndroidCompanion() {
               padding: "2px 8px",
               border: "1px solid var(--c-system1)",
               fontVariantNumeric: "tabular-nums",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
             }}
           >
-            ● ONLINE
+            <DotIcon color="var(--c-system1)" /> ONLINE
           </span>
         )}
       </div>
@@ -68,18 +78,19 @@ export function AndroidCompanion() {
       {/* Capture buttons */}
       <div style={{ display: "flex", gap: "var(--sp-sm)" }}>
         <button
+          ref={captureVoiceRef}
           className="btn btn-primary"
           style={{ flex: 1 }}
           onClick={() => dispatch({ type: "CAPTURE_VOICE" })}
         >
-          🎙 Capture Voice
+          <MicIcon /> Capture Voice
         </button>
         <button
           className="btn btn-ghost"
           style={{ flex: 1 }}
           onClick={() => dispatch({ type: "SCAN_WHITEBOARD" })}
         >
-          📷 Scan Board
+          <CameraIcon /> Scan Board
         </button>
       </div>
 
@@ -103,10 +114,8 @@ export function AndroidCompanion() {
           >
             <span
               style={{
-                fontSize: "var(--fs-eyebrow)",
+                fontSize: "var(--fs-ui-sm)",
                 fontWeight: 600,
-                letterSpacing: "var(--ls-eyebrow)",
-                textTransform: "uppercase",
                 color: "var(--c-system2)",
               }}
             >
@@ -134,13 +143,13 @@ export function AndroidCompanion() {
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                ⊟ {node.packet.source} · {new Date(node.createdAt).toLocaleTimeString()}
+                <QueueIcon /> {node.packet.source} · {new Date(node.createdAt).toLocaleTimeString()}
               </div>
             ))}
           </div>
           <button
             className="btn btn-system2"
-            style={{ width: "100%", marginTop: "var(--sp-sm)", height: "28px", fontSize: "var(--fs-ui-sm)" }}
+            style={{ width: "100%", marginTop: "var(--sp-sm)", height: "36px", fontSize: "var(--fs-ui-sm)" }}
             onClick={() => dispatch({ type: "SYNC_QUEUE" })}
           >
             Sync Now ({pendingCount})
@@ -152,10 +161,8 @@ export function AndroidCompanion() {
       <div style={{ flex: 1, minHeight: "80px" }}>
         <div
           style={{
-            fontSize: "var(--fs-eyebrow)",
+            fontSize: "var(--fs-ui-sm)",
             fontWeight: 600,
-            letterSpacing: "var(--ls-eyebrow)",
-            textTransform: "uppercase",
             color: "var(--c-ink-muted)",
             marginBottom: "var(--sp-xs)",
           }}
@@ -198,9 +205,12 @@ export function AndroidCompanion() {
                     padding: "1px 6px",
                     border: "1px solid var(--c-system1)",
                     fontVariantNumeric: "tabular-nums",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "2px",
                   }}
                 >
-                  ✓ synced
+                  <SyncCheckIcon /> synced
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: "var(--fs-ui-sm)", color: "var(--c-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -216,5 +226,52 @@ export function AndroidCompanion() {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ── Inline SVG icons — consistent 1.5px stroke ── */
+
+function MicIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ display: "inline-block", verticalAlign: "-2px" }} aria-hidden="true">
+      <rect x="5" y="1" width="4" height="7" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M2.5 6V7A4.5 4.5 0 0 0 11.5 7V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M7 11.5V13M5 13H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ display: "inline-block", verticalAlign: "-2px" }} aria-hidden="true">
+      <rect x="1.5" y="4" width="11" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M4.5 4L5.5 2H8.5L9.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="7" cy="8" r="2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function DotIcon({ color }: { color: string }) {
+  return (
+    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
+      <circle cx="4" cy="4" r="3" fill={color} />
+    </svg>
+  );
+}
+
+function QueueIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ display: "inline-block", verticalAlign: "-1px", marginRight: "2px" }} aria-hidden="true">
+      <rect x="1.5" y="2.5" width="9" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1.5 5H10.5" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function SyncCheckIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+      <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

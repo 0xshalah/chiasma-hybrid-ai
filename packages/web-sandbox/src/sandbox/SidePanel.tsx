@@ -5,10 +5,17 @@
  */
 
 import { useSandbox } from "./sandbox-context.tsx";
+import { StagePill, deriveStage } from "./StagePill.tsx";
 
 export function SidePanel() {
   const { state } = useSandbox();
   const isSystem2 = state.routing?.hemisphere === "system2";
+  const stage = deriveStage(
+    state.scrubResult.hasPII,
+    !!state.contextPacket,
+    state.routing,
+    isSystem2,
+  );
 
   return (
     <div
@@ -28,13 +35,9 @@ export function SidePanel() {
         Chrome Side Panel · 360px
       </div>
 
-      {/* Status header */}
+      {/* Status header — stage pill pattern from cursor DESIGN.md */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-sm)" }}>
-        {isSystem2 ? (
-          <span className="pill pill-system2">System 2 — Cloud</span>
-        ) : (
-          <span className="pill pill-system1">System 1 — On-Device</span>
-        )}
+        <StagePill stage={stage} />
         {state.scrubResult.hasPII && (
           <span className="redacted-badge">PII DETECTED</span>
         )}
@@ -44,10 +47,8 @@ export function SidePanel() {
       <div>
         <div
           style={{
-            fontSize: "var(--fs-eyebrow)",
+            fontSize: "var(--fs-ui-sm)",
             fontWeight: 600,
-            letterSpacing: "var(--ls-eyebrow)",
-            textTransform: "uppercase",
             color: "var(--c-ink-muted)",
             marginBottom: "var(--sp-xs)",
           }}
@@ -81,10 +82,8 @@ export function SidePanel() {
         <div className="card card-system1" style={{ padding: "var(--sp-md)" }}>
           <div
             style={{
-              fontSize: "var(--fs-eyebrow)",
+              fontSize: "var(--fs-ui-sm)",
               fontWeight: 600,
-              letterSpacing: "var(--ls-eyebrow)",
-              textTransform: "uppercase",
               color: "var(--c-system1)",
               marginBottom: "var(--sp-xs)",
             }}
@@ -133,10 +132,8 @@ export function SidePanel() {
         <div className="card card-system2" style={{ padding: "var(--sp-md)" }}>
           <div
             style={{
-              fontSize: "var(--fs-eyebrow)",
+              fontSize: "var(--fs-ui-sm)",
               fontWeight: 600,
-              letterSpacing: "var(--ls-eyebrow)",
-              textTransform: "uppercase",
               color: "var(--c-system2)",
               marginBottom: "var(--sp-xs)",
             }}
@@ -149,6 +146,18 @@ export function SidePanel() {
               : state.routing?.reason === "above-threshold"
                 ? "Friction exceeded threshold. Cloud reasoning engaged for deeper synthesis."
                 : "Gemini Nano 4 unavailable — falling back to cloud reasoning."}
+          </p>
+          {/* P2 fix: reassurance that PII was already scrubbed before this packet left the device */}
+          <p style={{
+            fontSize: "var(--fs-micro)",
+            fontFamily: "var(--font-mono)",
+            color: "var(--c-system1-ink)",
+            marginTop: "var(--sp-sm)",
+            background: "var(--c-system1-soft)",
+            borderRadius: "var(--r-xs)",
+            padding: "4px 8px",
+          }}>
+            PII scrubbed before sending — only the sanitized ≤300-token packet was transmitted.
           </p>
         </div>
       )}
