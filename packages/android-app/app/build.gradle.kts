@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-    // alias(libs.plugins.google.services)  // uncomment after adding google-services.json
+    alias(libs.plugins.google.services)  // requires google-services.json in app/
 }
 
 android {
@@ -66,10 +66,10 @@ dependencies {
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
-    // Firebase (comment out until google-services.json is added)
-    // implementation(platform(libs.firebase.bom))
-    // implementation(libs.firebase.firestore.ktx)
-    // implementation(libs.firebase.appcheck.playintegrity)
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.appcheck.playintegrity)
 
     // ML Kit text recognition
     implementation(libs.mlkit.text.recognition)
