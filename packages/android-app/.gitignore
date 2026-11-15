@@ -1,0 +1,24 @@
+# Android build outputs
+.gradle/
+build/
+app/build/
+app/.cxx/
+
+# IDE
+.idea/
+*.iml
+local.properties
+
+# Firebase config (user must add their own)
+app/google-services.json
+
+# Signing
+*.jks
+*.keystore
+
+# Kotlin/Java
+*.class
+
+# OS
+.DS_Store
+Thumbs.db

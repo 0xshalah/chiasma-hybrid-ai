@@ -37,7 +37,7 @@ chiasma-hybrid-ai/
 │   ├── shared-core/      ← PII Scrubber, Corpus Callosum, ContextPacket (pure TS)
 │   ├── web-sandbox/      ← Vite+React landing page + 4-col sandbox (DONE, LIVE)
 │   ├── chrome-extension/ ← Phase 4 (DONE, build 158.7KB)
-│   └── android-app/      ← Phase 5 (NOT YET)
+│   └── android-app/      ← Phase 5 (DONE, scaffold complete)
 ├── .kiro/specs/          ← Kiro spec files per feature (requirements → design → tasks)
 ├── AGENTS.md             ← This file
 ├── MEMORY.md             ← Current progress

@@ -1,3 +1,12 @@
+/**
+ * FrictionBar — friction score gauge with glow.
+ *
+ * Techniques:
+ * - scaleX fill: no layout reflow per frame
+ * - Glow box-shadow when above threshold (Technique 4 — friction glow)
+ * - Raycast cmd-palette row hover for bridge status rows (Technique 6)
+ */
+
 import type { FrictionScore, RoutingDecision } from "@chiasma/shared-core";
 
 const THRESHOLD = 0.75;
@@ -12,21 +21,24 @@ export function FrictionBar({
   const value = friction?.value ?? 0;
   const pct = Math.min(100, value * 100);
   const thresholdPct = THRESHOLD * 100;
-
   const isSystem2 = routing?.hemisphere === "system2";
+  const aboveThreshold = value >= THRESHOLD;
 
   return (
     <div className="card">
       <div className="card-label">
         Friction
-        <span className="friction-value" style={{ color: isSystem2 ? "var(--c-system2)" : "var(--c-ink)" }}>
+        <span
+          className="friction-value"
+          style={{ color: isSystem2 ? "var(--c-system2-ink)" : "var(--c-system1-ink)" }}
+        >
           {value.toFixed(2)}
         </span>
       </div>
 
       <div className="friction-track">
         <div
-          className="friction-fill"
+          className={`friction-fill${aboveThreshold ? " friction-fill--glow" : " friction-fill--safe"}`}
           style={{
             transform: `scaleX(${pct / 100})`,
             background: isSystem2 ? "var(--c-system2)" : "var(--c-system1)",
@@ -37,13 +49,18 @@ export function FrictionBar({
 
       <div className="friction-labels">
         <span>System 1 (local)</span>
-        <span>System 2 (cloud)</span>
+        <span style={{ color: aboveThreshold ? "var(--c-system2-ink)" : undefined }}>
+          System 2 (cloud)
+        </span>
       </div>
 
       {routing && (
-        <div className="routing-decision" style={{ color: isSystem2 ? "var(--c-system2-ink)" : "var(--c-system1-ink)" }}>
-          Routed to {routing.hemisphere === "system1" ? "System 1 — On-Device" : "System 2 — Cloud"}
-          <span className="routing-reason">{routing.reason.replace("-", " ")}</span>
+        <div
+          className="routing-decision"
+          style={{ color: isSystem2 ? "var(--c-system2-ink)" : "var(--c-system1-ink)" }}
+        >
+          {routing.hemisphere === "system1" ? "System 1 — On-Device" : "System 2 — Cloud"}
+          <span className="routing-reason">{routing.reason.replace(/-/g, " ")}</span>
         </div>
       )}
     </div>

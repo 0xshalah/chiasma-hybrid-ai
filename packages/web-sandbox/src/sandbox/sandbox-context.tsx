@@ -184,7 +184,16 @@ function reducer(state: SandboxState, action: Action): SandboxState {
         },
         manualTrigger: false,
       });
-      return { ...state, friction, routing, manualTrigger: false };
+      // Full reset: clear editor, PII feed, context packet, and routing too
+      return {
+        ...state,
+        editorText: "// Start typing or click a preset below…",
+        scrubResult: { redacted: "", matches: [], hasPII: false },
+        contextPacket: null,
+        friction,
+        routing,
+        manualTrigger: false,
+      };
     }
 
     case "TOGGLE_OFFLINE": {
@@ -263,7 +272,17 @@ function reducer(state: SandboxState, action: Action): SandboxState {
     }
 
     case "CLEAR_MANUAL_TRIGGER": {
-      return { ...state, manualTrigger: false };
+      const routing = route({
+        friction: state.friction,
+        device: { hasNano: state.hasNano },
+        config: {
+          frictionEscalationThreshold: state.threshold,
+          cloudModel: "gemini-2.0-flash",
+          appCheckEnforced: true,
+        },
+        manualTrigger: false,
+      });
+      return { ...state, manualTrigger: false, routing };
     }
 
     default:

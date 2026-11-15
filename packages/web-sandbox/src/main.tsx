@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import { LenisProvider } from "./components/LenisProvider.tsx";
 import { CustomCursor } from "./components/CustomCursor.tsx";
 import { Preloader } from "./components/Preloader.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 import "./styles/global.css";
 
 function Root() {
@@ -11,7 +12,7 @@ function Root() {
   const onDone = useCallback(() => setLoaded(true), []);
 
   return (
-    <>
+    <ErrorBoundary>
       <Preloader onDone={onDone} />
       {/* App renders immediately but is invisible until preloader finishes */}
       <div
@@ -26,7 +27,7 @@ function Root() {
           <App />
         </LenisProvider>
       </div>
-    </>
+    </ErrorBoundary>
   );
 }
 

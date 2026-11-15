@@ -44,6 +44,7 @@ function NavBar() {
   return (
     <nav
       ref={navRef}
+      aria-label="Main navigation"
       style={{
         position: "fixed",
         top: 0,
@@ -99,6 +100,7 @@ export default function App() {
       {/* ── Live Sandbox ── */}
       <section
         id="sandbox"
+        aria-labelledby="sandbox-heading"
         style={{
           padding: "var(--sp-section) var(--sp-xl)",
           background: "var(--c-canvas)",
@@ -106,7 +108,7 @@ export default function App() {
       >
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "var(--sp-3xl)" }}>
-            <h2 className="display-lg" style={{ marginTop: "var(--sp-sm)" }}>
+            <h2 id="sandbox-heading" className="display-lg" style={{ marginTop: "var(--sp-sm)" }}>
               Live Ecosystem Sandbox
             </h2>
             <p className="lead" style={{ marginTop: "var(--sp-sm)" }}>
@@ -134,6 +136,7 @@ export default function App() {
 
       {/* ── Footer ── */}
       <footer
+        aria-label="Site footer"
         style={{
           background: "var(--c-ink)",
           color: "var(--c-canvas)",
