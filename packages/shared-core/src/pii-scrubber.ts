@@ -10,34 +10,37 @@
 
 import type { PIIMatch, PIIPatternType, ScrubResult } from "./types.js";
 
-/** Each PII type and its detection regex. */
-const PATTERNS: Array<{ type: PIIPatternType; regex: RegExp }> = [
+/** Pattern definitions — stored as source strings, NOT compiled RegExp objects.
+ *  A new RegExp is created on every scrubPII call to avoid shared `lastIndex`
+ *  state corruption when the function is called rapidly (e.g. on every keystroke).
+ */
+const PATTERN_DEFS: Array<{ type: PIIPatternType; source: string; flags: string }> = [
   // Stripe secret keys
-  { type: "stripe-key", regex: /\b(?:sk|pk)_(?:live|test)_[A-Za-z0-9]{24,}\b/g },
+  { type: "stripe-key", source: String.raw`\b(?:sk|pk)_(?:live|test)_[A-Za-z0-9]{24,}\b`, flags: "g" },
 
   // AWS access key IDs (20 uppercase alphanumerics starting AKIA)
-  { type: "aws-key", regex: /\bAKIA[0-9A-Z]{16}\b/g },
+  { type: "aws-key", source: String.raw`\bAKIA[0-9A-Z]{16}\b`, flags: "g" },
 
   // Google API keys (39 chars, AIza prefix)
-  { type: "google-api-key", regex: /\bAIza[0-9A-Za-z\-_]{35}\b/g },
+  { type: "google-api-key", source: String.raw`\bAIza[0-9A-Za-z\-_]{35}\b`, flags: "g" },
 
   // JWT tokens (three base64 segments separated by dots)
-  { type: "jwt-token", regex: /\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g },
+  { type: "jwt-token", source: String.raw`\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b`, flags: "g" },
 
   // Bearer tokens
-  { type: "bearer-token", regex: /\bBearer\s+[A-Za-z0-9._\-+\/=]{20,}\b/gi },
+  { type: "bearer-token", source: String.raw`\bBearer\s+[A-Za-z0-9._\-+\/=]{20,}\b`, flags: "gi" },
 
   // PEM private key blocks
-  { type: "private-key", regex: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----/g },
+  { type: "private-key", source: String.raw`-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----`, flags: "g" },
 
   // Email addresses
-  { type: "email", regex: /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g },
+  { type: "email", source: String.raw`\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b`, flags: "g" },
 
   // Credit card numbers (13-19 digits, optional spaces/dashes)
-  { type: "credit-card", regex: /\b(?:\d[ -]?){13,19}\b/g },
+  { type: "credit-card", source: String.raw`\b(?:\d[ -]?){13,19}\b`, flags: "g" },
 
   // Phone numbers (international format, 7-15 digits)
-  { type: "phone", regex: /\+?\d{1,3}?[ .-]?\(?\d{1,4}\)?[ .-]?\d{3,5}[ .-]?\d{3,5}\b/g },
+  { type: "phone", source: String.raw`\+?\d{1,3}?[ .-]?\(?\d{1,4}\)?[ .-]?\d{3,5}[ .-]?\d{3,5}\b`, flags: "g" },
 ];
 
 /** The replacement text for all redacted content. */
@@ -55,10 +58,9 @@ export const REDACTION_PLACEHOLDER = "[REDACTED_PII]";
 export function scrubPII(text: string): ScrubResult {
   const matches: PIIMatch[] = [];
 
-  // Collect all matches with their positions
-  for (const { type, regex } of PATTERNS) {
-    // Reset lastIndex for global regexes
-    regex.lastIndex = 0;
+  // Build fresh RegExp objects each call — avoids shared lastIndex corruption
+  for (const { type, source, flags } of PATTERN_DEFS) {
+    const regex = new RegExp(source, flags);
     let match: RegExpExecArray | null;
 
     while ((match = regex.exec(text)) !== null) {
@@ -69,7 +71,6 @@ export function scrubPII(text: string): ScrubResult {
         end: match.index + match[0].length,
       });
 
-      // Prevent infinite loop on zero-length matches
       if (match.index === regex.lastIndex) {
         regex.lastIndex++;
       }
@@ -104,8 +105,8 @@ export function scrubPII(text: string): ScrubResult {
  * Faster than scrubPII when you only need a boolean.
  */
 export function containsPII(text: string): boolean {
-  for (const { regex } of PATTERNS) {
-    regex.lastIndex = 0;
+  for (const { source, flags } of PATTERN_DEFS) {
+    const regex = new RegExp(source, flags);
     if (regex.test(text)) {
       return true;
     }
