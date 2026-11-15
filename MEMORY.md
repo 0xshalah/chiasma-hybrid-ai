@@ -35,6 +35,6 @@ Update after major decisions, phase completions, or bugs future agents need to k
 - [x] impeccable critique: contrast fixes, touch targets, aria-label, flow indicators
 - [x] GitHub Pages live: https://0xshalah.github.io/chiasma-hybrid-ai/
 - [x] Source committed to main via Git Data API
-- [x] Phase 4 — Chrome Extension (T1-T6 complete, build 158.7KB, tsc pass)
-- [ ] Phase 5 — Android App (spec in progress)
+- [x] Phase 4 — Chrome Extension (T1-T6 complete, build 158.7KB, tsc pass, 13 integration tests)
+- [x] Phase 5 — Android App (scaffold complete: T1-T8, build.gradle, all Kotlin source files)
 - [ ] Devpost submission

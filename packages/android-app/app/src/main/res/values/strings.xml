@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CHIASMA</string>
+    <string name="capture_voice">Capture Voice</string>
+    <string name="scan_board">Scan Board</string>
+    <string name="system1_nano">System 1 — Nano</string>
+    <string name="system1_limited">System 1 — Limited</string>
+    <string name="system2_cloud">System 2 — Cloud</string>
+    <string name="pending_badge">%d pending</string>
+    <string name="nodes_synced">%d nodes synced</string>
+    <string name="voice_capture_failed">Voice capture failed — try again</string>
+    <string name="no_text_detected">No text detected — try better lighting</string>
+    <string name="sync_unavailable">Sync unavailable</string>
+    <string name="secrets_stay_local">Your secrets stay on your device. Always.</string>
+</resources>
