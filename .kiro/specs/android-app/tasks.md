@@ -64,10 +64,10 @@
 - **Maps to:** FR-01 (US-01), FR-05 (US-05), FR-06 (US-06)
 
 ### T8 — Unit tests
-- [ ] Create `PiiScrubberTest.kt` — AND-01: 9 PII patterns
-- [ ] Create `ContextPacketBuilderTest.kt` — AND-02: tokenCount ≤ 300
-- [ ] Create `SyncWorkerTest.kt` — AND-03: pending → Firestore → delete
-- [ ] Create `FirestoreRepositoryTest.kt` — AND-04: PiiScrubber called before every save
+- [x] Create `PiiScrubberTest.kt` — AND-01: 9 PII patterns
+- [x] Create `ContextPacketBuilderTest.kt` — AND-02: tokenCount ≤ 300
+- [x] Create `SyncWorkerTest.kt` — AND-03: pending → Firestore → delete
+- [x] Create `FirestoreRepositoryTest.kt` — AND-04: PiiScrubber called before every save
 - **Deliverable:** `./gradlew test` passes all tests
 - **Maps to:** design.md Testing Strategy AND-01..AND-04
 
