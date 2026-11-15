@@ -27,8 +27,11 @@ firestore-debug.log
 Thumbs.db
 
 # Chrome Extension
-chrome-extension/dist/
-chrome-extension/*.zip
+packages/chrome-extension/dist/
+packages/chrome-extension/*.zip
+
+# Local build utils
+packages/chrome-extension/post-build.cjs
 
 # Android
 android-app/.gradle/
