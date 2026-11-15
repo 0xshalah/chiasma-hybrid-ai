@@ -303,7 +303,11 @@ const ManualTriggerButton = forwardRef<HTMLButtonElement>((_, ref) => {
       ref={ref}
       className="btn btn-system2"
       style={{ fontSize: "var(--fs-ui-sm)" }}
-      onClick={() => dispatch({ type: "MANUAL_TRIGGER" })}
+      onClick={() => {
+        dispatch({ type: "MANUAL_TRIGGER" });
+        // Clear manual trigger flag after 3s so routing can revert on next text change
+        setTimeout(() => dispatch({ type: "CLEAR_MANUAL_TRIGGER" }), 3000);
+      }}
     >
       <BoltIcon /> Alt + Shift + C
     </button>

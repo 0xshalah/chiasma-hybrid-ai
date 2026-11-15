@@ -207,14 +207,23 @@ export function Architecture() {
   const scene = SCENES[activeScene];
 
   // ── Mobile + reduced-motion: flat 3-card layout ──
-  const isMobile =
-    typeof window !== "undefined" && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < 768
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    setIsMobile(mq.matches);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   if (prefersReduced || isMobile) {
     return (
       <section id="architecture" style={{ padding: "var(--sp-section) var(--sp-xl)", background: "var(--c-canvas)" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h2 className="display-lg" style={{ textAlign: "center", marginBottom: "var(--sp-3xl)" }}>
+          <h2 id="arch-heading" className="display-lg" style={{ marginBottom: "var(--sp-3xl)" }}>
             Two brains, one bridge
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "1.3fr 0.8fr 1.3fr", gap: "var(--sp-xl)" }}>
@@ -232,6 +241,7 @@ export function Architecture() {
     <section
       id="architecture"
       ref={outerRef}
+      aria-labelledby="arch-heading"
       style={{ height: "400vh", background: "var(--c-canvas)" }}
     >
       {/* Sticky container — 100vh, pinned by ScrollTrigger */}
@@ -264,7 +274,7 @@ export function Architecture() {
             ARCHITECTURE
           </p>
 
-          <h2 className="display-lg" style={{ marginBottom: "var(--sp-xl)" }}>
+          <h2 id="arch-heading" className="display-lg" style={{ marginBottom: "var(--sp-xl)" }}>
             Two brains,<br />one bridge
           </h2>
 
