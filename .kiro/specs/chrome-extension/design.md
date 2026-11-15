@@ -81,8 +81,11 @@ ESCALATE_REQUEST
 
 State lives in `chrome.storage.local`. `useSandboxState` hook:
 1. Reads initial state from storage on mount
-2. Listens to `chrome.runtime.onMessage` for live updates
-3. Returns typed state + `escalate()` action
+2. **Polls `chrome.storage.local` every 500ms** (primary sync mechanism)
+3. Listens to `chrome.storage.onChanged` for instant updates (secondary)
+4. Returns typed state + `escalate()` action
+
+> **NOTE (learned from bug 2026-11-15):** `chrome.runtime.sendMessage` from a service worker CANNOT reach a side panel — side panel is not a tab and does not receive broadcast messages. Always use `chrome.storage.local` as the state bus between SW and side panel.
 
 ## Data Model
 
@@ -119,10 +122,41 @@ interface ExtensionState {
 
 ## Testing Strategy
 
-- Unit: `scrubPII()`, `buildContextPacket()`, `route()` from shared-core (already tested)
-- Integration: service worker message flow — mock `chrome.*` APIs
-- Manual: load extension in Chrome, open side panel on github.com, type code with email → verify PII badge
-- Build check: `vite build` exits 0, bundle < 500KB total
+### Unit tests (vitest, no Chrome APIs needed)
+- `scrubPII()` — 9 PII types, regression for each pattern
+- `buildContextPacket()` — token count ≤ 300, entity extraction
+- `route()` — 4 decision paths (manual, no-nano, above-threshold, below-threshold)
+
+### Integration tests (vitest + chrome-mock)
+
+**Why integration tests are required:**
+Chrome extension APIs (`chrome.storage`, `chrome.runtime`, `chrome.sidePanel`) have non-obvious constraints that only appear at runtime. Unit tests alone cannot catch them.
+
+**Mock pattern:** Use `vitest-chrome` or manual mock of `chrome.storage.local` to simulate the full SW → storage → side panel pipeline without a real browser.
+
+**Test cases that MUST pass before shipping:**
+
+| ID | What | Why critical |
+|---|---|---|
+| INT-01 | `TEXT_CHANGED` → `chrome.storage.local` contains `scrubResult` after handler | Verifies SW pipeline writes to storage |
+| INT-02 | `chrome.storage.onChanged` fires after SW patchState | Verifies side panel will receive update |
+| INT-03 | `useSandboxState` poll reads updated state within 500ms | Verifies the actual bug that shipped (broadcast → poll fix) |
+| INT-04 | `scrubPII("sk_live_abc123...")` returns `hasPII: true` before any storage call | Verifies PII is caught on-device, never in network payload |
+| INT-05 | `ESCALATE_REQUEST` with no API key returns local fallback, not error | Verifies graceful degradation |
+
+**Test file location:** `packages/chrome-extension/src/__tests__/integration.test.ts`
+
+### Manual regression checklist (run after every build)
+1. Load `dist/` in Chrome Developer mode
+2. Open side panel
+3. Go to any page, type `sk_live_test123abcdef` in a textarea
+4. **Within 1 second:** PII feed shows `[REDACTED_PII]`, stage pill shows "Scrubbing PII"
+5. **Within 2 seconds:** Friction bar updates, stage shows routing decision
+6. Click "Escalate to Cloud" — synthesis card shows either result or graceful error (never blank)
+
+### Build check
+- `vite build` exits 0, bundle < 500KB total
+- `tsc --noEmit` passes with 0 errors
 
 ## Constraints
 
