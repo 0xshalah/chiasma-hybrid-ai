@@ -71,14 +71,20 @@ export function Hero() {
     if (!outer || !sticky || !pill || !h1 || !sub || !cta || !metricsBar) return;
 
     // ── Phase A: initial entrance (after preloader) ──
+    // Delay must be > App wrapper fade-in (400ms) to avoid headline staying invisible
+    const ENTRANCE_DELAY = 0.5;
+
     if (prefersReduced) {
       gsap.set([pill, h1, sub, cta, metricsBar], { opacity: 1, y: 0, filter: "blur(0px)" });
     } else {
+      // h1 starts visible at the DOM level (opacity: 1 in JSX) so it never gets
+      // stuck invisible if the timeline fires while the App wrapper is still fading in.
+      // SplitText sets chars to opacity:0 immediately, then animates them in.
       const split = new SplitText(h1, { type: "chars,words" });
       gsap.set(split.chars, { opacity: 0, y: 20, filter: "blur(6px)" });
       gsap.set([pill, sub, cta, metricsBar], { opacity: 0, y: 14 });
 
-      const entrance = gsap.timeline({ delay: 0.15 });
+      const entrance = gsap.timeline({ delay: ENTRANCE_DELAY });
       entrance
         .to(pill, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" })
         .to(split.chars, {
@@ -213,11 +219,12 @@ export function Hero() {
             </span>
           </div>
 
-          {/* Headline */}
+          {/* Headline — opacity starts at 1 so it's never stuck invisible
+               if GSAP timeline fires while App wrapper is still fading in.
+               SplitText sets individual chars to opacity:0 immediately. */}
           <h1
             ref={h1Ref}
             className="display-hero"
-            style={{ opacity: 0 }}
             aria-label="Split-Brain AI that keeps secrets on your device."
           >
             Split-Brain AI that keeps
