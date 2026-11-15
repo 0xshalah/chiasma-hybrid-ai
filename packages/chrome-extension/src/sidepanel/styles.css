@@ -1,65 +1,94 @@
 /**
- * CHIASMA Side Panel styles — Warm Swiss Editorial.
- * 360px width, CSS-only animations, token-driven.
+ * CHIASMA Side Panel — Dark-first design (Raycast surface ladder).
+ *
+ * Techniques:
+ * 1. Dark-first: Raycast 4-step surface ladder (#07080a → #0d0d0d → #101111 → #121212)
+ * 2. Inter ss03: font-feature-settings "ss03" for premium typography distinction
+ * 3. Slide-in panel entrance: translateX(16px) + opacity on mount
+ * 4. Glow friction bar: box-shadow pulse when friction > threshold
+ * 5. Status dot: animated pulse on active/non-idle stage
+ * 6. Smooth row hover: bg step-up, no border flash (Raycast cmd-palette pattern)
+ *
+ * hallmark: no tracked uppercase, no emoji, hairline borders not shadow for low-elevation cards
  */
 
 :root {
-  /* Surface */
-  --c-canvas: #f6f4f0;
-  --c-surface: #ffffff;
-  --c-surface-raised: #faf8f4;
-  --c-hairline: #e5e2dc;
+  /* ── Raycast surface ladder ── */
+  --c-canvas:         #07080a;   /* void — page bg */
+  --c-surface:        #0d0d0d;   /* card bg */
+  --c-surface-raised: #101111;   /* elevated card */
+  --c-surface-hover:  #161718;   /* hover state (step-up) */
+  --c-surface-active: #1c1d1f;   /* pressed */
 
-  /* Text */
-  --c-ink: #161615;
-  --c-ink-secondary: #575550;
-  --c-ink-muted: #6b6764;
+  /* ── Hairline borders ── */
+  --c-hairline:       #242728;   /* Raycast #242728 */
+  --c-hairline-soft:  #1a1b1d;   /* subtler divider */
 
-  /* System 1 — On-Device */
-  --c-system1: #3d5a45;
-  --c-system1-soft: #e6ede8;
-  --c-system1-ink: #2a4132;
+  /* ── Text ── */
+  --c-ink:            #f4f4f5;   /* primary text — zinc-100 */
+  --c-ink-secondary:  #a1a1aa;   /* secondary — zinc-400 */
+  --c-ink-muted:      #71717a;   /* muted — zinc-500 */
 
-  /* System 2 — Cloud */
-  --c-system2: #d95d39;
-  --c-system2-soft: #f9eae5;
-  --c-system2-ink: #a03e22;
+  /* ── System 1 — On-Device / Sage (desaturated for dark) ── */
+  --c-system1:        #4ade80;   /* green-400 — bright enough on dark */
+  --c-system1-soft:   #052e16;   /* green-950 */
+  --c-system1-ink:    #86efac;   /* green-300 */
 
-  /* Pipeline stage pastels */
-  --c-stage-scrubbing: #dfa88f;
-  --c-stage-distilling: #9fc9a2;
-  --c-stage-routing: #9fbbe0;
-  --c-stage-cloud: #c0a8dd;
-  --c-stage-done: #c08532;
-  --c-stage-ink: #161615;
+  /* ── System 2 — Cloud / Terracotta (desaturated for dark) ── */
+  --c-system2:        #f97316;   /* orange-500 */
+  --c-system2-soft:   #431407;   /* orange-950 */
+  --c-system2-ink:    #fdba74;   /* orange-300 */
 
-  /* Semantic */
-  --c-redacted: #d95d39;
-  --c-redacted-bg: #f9eae5;
+  /* ── AI pipeline stage pastels — dark-adjusted ── */
+  --c-stage-scrubbing: #7c3d1a;   /* warm brown */
+  --c-stage-distilling: #14532d;  /* deep green */
+  --c-stage-routing: #1e3a5f;     /* deep blue */
+  --c-stage-cloud: #3b1f5e;       /* deep lavender */
+  --c-stage-done: #78350f;        /* deep amber */
+  --c-stage-ink: #f4f4f5;         /* always light text on dark stage */
 
-  /* Fonts */
+  /* Stage dot colors (brighter for visibility) */
+  --c-dot-scrubbing: #fb923c;
+  --c-dot-distilling: #4ade80;
+  --c-dot-routing: #60a5fa;
+  --c-dot-cloud: #c084fc;
+  --c-dot-done: #fbbf24;
+  --c-dot-idle: #52525b;
+
+  /* ── Redacted ── */
+  --c-redacted:    #f97316;
+  --c-redacted-bg: #431407;
+
+  /* ── Friction glow ── */
+  --c-glow-system1: rgba(74, 222, 128, 0.35);
+  --c-glow-system2: rgba(249, 115, 22, 0.35);
+
+  /* ── Fonts ── */
   --font-serif: "Instrument Serif", Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --font-sans:  "Inter", system-ui, sans-serif;
+  --font-mono:  "JetBrains Mono", "SF Mono", monospace;
 
-  /* Radius */
-  --r-xs: 4px;
-  --r-sm: 8px;
-  --r-md: 12px;
+  /* ── Radius ── */
+  --r-xs:   4px;
+  --r-sm:   8px;
+  --r-md:   10px;
   --r-pill: 9999px;
 
-  /* Shadow */
-  --shadow-card: 0 1px 2px rgba(22, 22, 21, 0.04);
+  /* ── Shadows — minimal in dark mode ── */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
 
-  /* Transition */
-  --t-fast: 150ms ease;
+  /* ── Transitions ── */
+  --t-fast:   150ms ease;
+  --t-normal: 250ms ease;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   width: 360px;
   font-family: var(--font-sans);
+  font-feature-settings: "ss03";   /* Inter ss03 — Raycast signature alternate g */
   font-size: 13px;
   color: var(--c-ink);
   background: var(--c-canvas);
@@ -67,10 +96,23 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ── Slide-in panel entrance (Technique 3) ── */
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .chiasma-panel {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  animation: panel-enter 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ── Header ── */
@@ -85,14 +127,18 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 10;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .panel-logo {
   font-family: var(--font-serif);
-  font-size: 18px;
+  font-size: 17px;
   letter-spacing: -0.3px;
   color: var(--c-ink);
 }
+
+/* ── Stage pill (Technique 4 — dot pulse) ── */
 
 .stage-pill {
   display: inline-flex;
@@ -100,10 +146,11 @@ html, body {
   gap: 6px;
   padding: 3px 10px;
   border-radius: var(--r-pill);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
-  transition: background var(--t-fast), color var(--t-fast);
+  border: 1px solid transparent;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
 }
 
 .stage-dot {
@@ -113,39 +160,50 @@ html, body {
   flex-shrink: 0;
 }
 
+/* Dot pulses when pipeline is active (non-idle) */
+.stage-dot--active {
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
 /* ── Body ── */
 
 .panel-body {
   flex: 1;
-  padding: 12px 16px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* ── Card ── */
+/* ── Card — hairline borders, not shadow, in dark mode ── */
 
 .card {
   background: var(--c-surface);
   border-radius: var(--r-sm);
-  padding: 12px 14px;
-  box-shadow: var(--shadow-card);
+  padding: 11px 13px;
+  border: 1px solid var(--c-hairline);
 }
 
 .card-label {
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--c-ink-muted);
   margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  letter-spacing: 0.04em;
 }
 
 .card-empty {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--c-ink-muted);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* ── PII Feed ── */
@@ -156,6 +214,7 @@ html, body {
   padding: 1px 7px;
   border-radius: var(--r-pill);
   font-size: 10px;
+  border: 1px solid rgba(249, 115, 22, 0.25);
 }
 
 .pii-types {
@@ -173,6 +232,7 @@ html, body {
   font-size: 10px;
   font-weight: 500;
   font-family: var(--font-mono);
+  border: 1px solid rgba(249, 115, 22, 0.2);
 }
 
 .pii-text {
@@ -182,14 +242,18 @@ html, body {
   line-height: 1.6;
   max-height: 120px;
   overflow-y: auto;
-  word-break: break-word;
+  overflow-wrap: break-word;
+  background: var(--c-canvas);
+  padding: 8px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--c-hairline-soft);
 }
 
 .pii-redacted {
   background: var(--c-redacted-bg);
   color: var(--c-redacted);
   font-weight: 600;
-  padding: 1px 3px;
+  padding: 1px 4px;
   border-radius: 2px;
 }
 
@@ -202,7 +266,7 @@ html, body {
 }
 
 .token-bar {
-  height: 3px;
+  height: 2px;
   background: var(--c-hairline);
   border-radius: var(--r-pill);
   margin-bottom: 10px;
@@ -237,6 +301,7 @@ html, body {
   border-radius: var(--r-xs);
   font-size: 10px;
   font-family: var(--font-mono);
+  border: 1px solid rgba(74, 222, 128, 0.2);
 }
 
 .packet-source {
@@ -246,21 +311,22 @@ html, body {
   overflow-wrap: break-word;
 }
 
-/* ── Friction Bar ── */
+/* ── Friction Bar (Technique 4 — glow on threshold) ── */
 
 .friction-value {
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
+  transition: color var(--t-normal);
 }
 
 .friction-track {
   position: relative;
-  height: 8px;
+  height: 6px;
   background: var(--c-hairline);
   border-radius: var(--r-pill);
-  margin-bottom: 6px;
-  overflow: hidden;
+  margin-bottom: 4px;
+  overflow: visible; /* allow glow to overflow */
 }
 
 .friction-fill {
@@ -271,16 +337,25 @@ html, body {
   height: 100%;
   border-radius: var(--r-pill);
   transform-origin: left center;
-  transition: transform 300ms ease, background 300ms ease;
+  transition: transform 300ms ease, background 300ms ease, box-shadow 400ms ease;
+}
+
+/* Glow when above threshold (system2) */
+.friction-fill--glow {
+  box-shadow: 0 0 8px 2px var(--c-glow-system2), 0 0 16px 4px rgba(249, 115, 22, 0.15);
+}
+
+.friction-fill--safe {
+  box-shadow: 0 0 6px 1px var(--c-glow-system1);
 }
 
 .friction-threshold {
   position: absolute;
-  top: -2px;
-  bottom: -2px;
-  width: 2px;
-  background: var(--c-ink);
-  opacity: 0.3;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: var(--c-ink-muted);
+  opacity: 0.5;
   transition: left 300ms ease;
 }
 
@@ -290,6 +365,7 @@ html, body {
   font-size: 9px;
   color: var(--c-ink-muted);
   margin-bottom: 8px;
+  letter-spacing: 0.03em;
 }
 
 .routing-decision {
@@ -306,6 +382,41 @@ html, body {
   font-weight: 400;
   color: var(--c-ink-muted);
 }
+
+/* ── Bridge rows — Raycast cmd-palette hover (Technique 6) ── */
+
+.bridge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 8px;
+  border-radius: var(--r-xs);
+  font-size: 11px;
+  transition: background var(--t-fast);
+  cursor: default;
+  margin: 0 -8px; /* bleed to card edge */
+}
+
+.bridge-row:hover {
+  background: var(--c-surface-hover);
+}
+
+.bridge-row + .bridge-row {
+  border-top: 1px solid var(--c-hairline-soft);
+}
+
+.bridge-row-label {
+  color: var(--c-ink-secondary);
+}
+
+.bridge-row-value {
+  color: var(--c-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.bridge-row-value--system1 { color: var(--c-system1-ink); }
+.bridge-row-value--system2 { color: var(--c-system2-ink); }
 
 /* ── Synthesis Card ── */
 
@@ -332,12 +443,13 @@ html, body {
 }
 
 .synthesis-error {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--c-system2-ink);
   background: var(--c-system2-soft);
   padding: 8px 10px;
   border-radius: var(--r-xs);
   margin-bottom: 8px;
+  border: 1px solid rgba(249, 115, 22, 0.2);
 }
 
 .synthesis-text {
@@ -351,28 +463,32 @@ html, body {
 .escalate-btn {
   width: 100%;
   padding: 10px;
-  border: none;
+  border: 1px solid rgba(249, 115, 22, 0.4);
   border-radius: var(--r-sm);
-  background: var(--c-system2);
-  color: var(--c-surface);
+  background: var(--c-system2-soft);
+  color: var(--c-system2-ink);
   font-family: var(--font-sans);
+  font-feature-settings: "ss03";
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background var(--t-fast), transform var(--t-fast);
+  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
   min-height: 36px;
 }
 
 .escalate-btn:hover:not(:disabled) {
-  background: var(--c-system2-ink);
+  background: rgba(249, 115, 22, 0.15);
+  border-color: var(--c-system2);
+  box-shadow: 0 0 10px 2px var(--c-glow-system2);
 }
 
 .escalate-btn:active:not(:disabled) {
   transform: scale(0.98);
+  box-shadow: none;
 }
 
 .escalate-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: default;
 }
 
@@ -390,11 +506,36 @@ html, body {
   color: var(--c-ink-muted);
   background: var(--c-surface);
   border-top: 1px solid var(--c-hairline);
+  letter-spacing: 0.02em;
+}
+
+/* ── Scrollbar ── */
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-hairline); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-ink-muted); }
+
+/* ── Selection ── */
+
+::selection {
+  background: rgba(74, 222, 128, 0.25);
+  color: var(--c-ink);
+}
+
+/* ── Focus ── */
+
+:focus-visible {
+  outline: 2px solid var(--c-system1);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
 }
 
 /* ── Reduced motion ── */
 
 @media (prefers-reduced-motion: reduce) {
+  .chiasma-panel { animation: none; }
+  .stage-dot--active { animation: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
