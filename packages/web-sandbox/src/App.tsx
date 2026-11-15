@@ -44,6 +44,7 @@ function NavBar() {
   return (
     <nav
       ref={navRef}
+      aria-label="Main navigation"
       style={{
         position: "fixed",
         top: 0,

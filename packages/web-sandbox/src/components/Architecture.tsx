@@ -206,8 +206,11 @@ export function Architecture() {
 
   const scene = SCENES[activeScene];
 
-  // ── Reduced-motion: flat 3-card layout ──
-  if (prefersReduced) {
+  // ── Mobile + reduced-motion: flat 3-card layout ──
+  const isMobile =
+    typeof window !== "undefined" && window.innerWidth < 768;
+
+  if (prefersReduced || isMobile) {
     return (
       <section id="architecture" style={{ padding: "var(--sp-section) var(--sp-xl)", background: "var(--c-canvas)" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
